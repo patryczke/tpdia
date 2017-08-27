@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.List;
 
 public class Service {
 
@@ -45,7 +46,7 @@ public class Service {
                 }
 
                 if(chunks.length != RecordAttributes.values().length - 1) {
-                    System.out.println("WARN: Skipped row id=" + rowCounter + ", due to invalid chunks");
+                    //System.out.println("WARN: Skipped row id=" + rowCounter + ", due to invalid chunks");
                     continue;
                 }
 
@@ -60,7 +61,7 @@ public class Service {
             }
 
         } catch(Exception e) {
-            System.err.println("ERROR: " + e.getMessage());
+            //System.err.println("ERROR: " + e.getMessage());
             throw new ApplicationException(e.getMessage(), e);
         }
     }
@@ -90,10 +91,18 @@ public class Service {
             record.setStartHeightProc(new Integer(chunks[i++]));
             record.setEndHeightProc(new Integer(chunks[i++]));
         } catch(Exception e) {
-            System.err.println("WARN: " + Arrays.toString(chunks) + ", columnId: " + i + ", " + e.getMessage());
+            //System.err.println("WARN: " + Arrays.toString(chunks) + ", columnId: " + i + ", " + e.getMessage());
             throw new ApplicationException(e.getMessage(), e);
         }
         return record;
+    }
+
+    public List<ResultData> findDiff(String mainAttribute, String diffAttr1, String diffAttr2, Integer limit) {
+        return dao.findDifferenceGroupByAttribute(mainAttribute, diffAttr1, diffAttr2, limit);
+    }
+
+    public List<ResultData> findDiff(String mainAttribute, String diffAttr1, String diffAttr2, String dividerAttr, Integer limit) {
+        return dao.findDifferenceGroupByAttribute(mainAttribute, diffAttr1, diffAttr2, dividerAttr, limit);
     }
 
 }

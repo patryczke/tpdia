@@ -4,6 +4,8 @@ import org.h2.tools.DeleteDbFiles;
 
 import java.lang.reflect.Field;
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class DAO {
 
@@ -107,7 +109,72 @@ public class DAO {
         } finally {
             freeResources(rs, pstmt);
         }
+    }
 
+    public List<ResultData> findDifferenceGroupByAttribute(String mainAttribute, String diffAttr1, String diffAttr2, Integer limit) {
+
+        System.out.println("INFO: attribute: " + mainAttribute + ", diff(" + diffAttr1 + "," + diffAttr2 + ")");
+
+        Statement stmt = null;
+        ResultSet rs = null;
+        try {
+            stmt = connection.createStatement();
+            String query = "SELECT " + mainAttribute + ", AVG(ABS(" + diffAttr1 + " - " + diffAttr2 + ")) AVG_DIFF " +
+                    " FROM TPDIA GROUP BY " + mainAttribute + " ORDER BY AVG_DIFF DESC";
+            if(limit != null) {
+                query += " LIMIT " + limit;
+            }
+            rs = stmt.executeQuery(query);
+
+            List<ResultData> result = new ArrayList<ResultData>();
+            while(rs.next()) {
+                ResultData data = new ResultData();
+                data.setMainAttribute(rs.getString(mainAttribute));
+                data.setDiff(rs.getDouble("AVG_DIFF"));
+                result.add(data);
+                System.out.println("INFO: > " + mainAttribute + ": " + data.getMainAttribute() + ", " + data.getDiff());
+
+            }
+            return result;
+        } catch (SQLException e) {
+            System.err.println("ERROR: " + e.getMessage());
+            throw new ApplicationException(e.getMessage(), e);
+        } finally {
+            freeResources(rs, stmt);
+        }
+    }
+
+    public List<ResultData> findDifferenceGroupByAttribute(String mainAttribute, String diffAttr1, String diffAttr2, String dividerAttr, Integer limit) {
+
+        System.out.println("INFO: attribute: " + mainAttribute + ", diff(" + diffAttr1 + "," + diffAttr2 + "), divider: " + dividerAttr);
+
+        Statement stmt = null;
+        ResultSet rs = null;
+        try {
+            stmt = connection.createStatement();
+            String query = "SELECT " + mainAttribute + ", ROUND(AVG(ABS(" + diffAttr1 + " - " + diffAttr2 + ") * 100 / CAST(" + dividerAttr + " as decimal )),3) AVG_DIFF " +
+                    " FROM TPDIA GROUP BY " + mainAttribute + " ORDER BY AVG_DIFF DESC";
+            if(limit != null) {
+                query += " LIMIT " + limit;
+            }
+            rs = stmt.executeQuery(query);
+
+            List<ResultData> result = new ArrayList<ResultData>();
+            while(rs.next()) {
+                ResultData data = new ResultData();
+                data.setMainAttribute(rs.getString(mainAttribute));
+                data.setDiff(rs.getDouble("AVG_DIFF"));
+                result.add(data);
+                System.out.println("INFO: > " + mainAttribute + ": " + data.getMainAttribute() + ", " + data.getDiff() + "%");
+
+            }
+            return result;
+        } catch (SQLException e) {
+            System.err.println("ERROR: " + e.getMessage());
+            throw new ApplicationException(e.getMessage(), e);
+        } finally {
+            freeResources(rs, stmt);
+        }
     }
 
     public void test() {
@@ -117,14 +184,9 @@ public class DAO {
         try {
 
             stmt = connection.createStatement();
-            rs = stmt.executeQuery("select CURRENT_DATE as TESTOWE from DUAL where 1=1");
+            rs = stmt.executeQuery("select CURRENT_DATE as CZAS, count(*) as ILE from TPDIA where 1=1");
             if(rs.next()) {
-                System.out.println(rs.getString("TESTOWE"));
-            }
-
-            rs = stmt.executeQuery("select count(*) as TESTOWE from TPDIA");
-            if(rs.next()) {
-                System.out.println("count=" + rs.getString("TESTOWE"));
+                System.out.println("TEST: time=" + rs.getString("CZAS") + ", count=" + rs.getString("ILE"));
             }
 
         } catch(SQLException e) {
