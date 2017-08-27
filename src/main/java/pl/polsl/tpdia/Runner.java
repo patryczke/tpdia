@@ -1,15 +1,16 @@
 package pl.polsl.tpdia;
 
-public class Runner {
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
-    private static final String DB_DRIVER = "org.h2.Driver";
-    private static final String DB_CONNECTION = "jdbc:h2:~/test";
-    private static final String DB_USER = "";
-    private static final String DB_PASSWORD = "";
+public class Runner {
 
     public static void main(String args[]) throws Exception {
 
-        System.out.println("INFO: TPDIA started...");
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        System.out.println("INFO: " + df.format(new Date()) + "TPDIA started...");
+
+        String inputFileName = "C:\\Users\\patry\\Desktop\\Dane dostawy.csv"; //take from arg parameter
 
         /*
         * prepare db
@@ -21,6 +22,10 @@ public class Runner {
         Service service = new Service();
         service.initializeApplication();
         service.testConnection();
+        service.loadFileData(inputFileName);
+        service.testConnection();
+
+        System.out.println("INFO: " + df.format(new Date()) + "TPDIA finished!");
     }
 
 

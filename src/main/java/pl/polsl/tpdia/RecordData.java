@@ -5,8 +5,8 @@ import java.util.Date;
 
 public class RecordData {
 
-    private String station;
-    private String tank;
+    private int station;
+    private int tank;
     private String type;
     private long capacity;
     private Date startTime;
@@ -21,17 +21,17 @@ public class RecordData {
     private int startHeightProc;
     private int endHeightProc;
 
-    public String getStation() {
+    public int getStation() {
         return station;
     }
-    public void setStation(String station) {
+    public void setStation(int station) {
         this.station = station;
     }
 
-    public String getTank() {
+    public int getTank() {
         return tank;
     }
-    public void setTank(String tank) {
+    public void setTank(int tank) {
         this.tank = tank;
     }
 
